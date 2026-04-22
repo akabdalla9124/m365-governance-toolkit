@@ -1,0 +1,78 @@
+{
+  "name": "Employee Onboarding - M365 Automation",
+  "description": "Automates new hire onboarding: welcome emails, SharePoint access, Teams notification, and IT ticket creation. Triggered by a new item in the SharePoint New Hires list.",
+  "trigger": {
+    "type": "SharePoint_WhenItemCreated",
+    "inputs": {
+      "site": "https://YOUR_TENANT.sharepoint.com/sites/HR",
+      "list": "New Hires"
+    }
+  },
+  "actions": [
+    {
+      "id": "get_manager",
+      "name": "Get Manager Profile",
+      "type": "Office365Users_GetUserProfile",
+      "inputs": {
+        "userId": "@triggerBody()?['Manager']?['Email']"
+      }
+    },
+    {
+      "id": "send_welcome_email",
+      "name": "Send Welcome Email to New Hire",
+      "type": "Office365Outlook_SendEmail",
+      "inputs": {
+        "to": "@triggerBody()?['Email']",
+        "subject": "Welcome to the team, @{triggerBody()?['FirstName']}!",
+        "body": "<p>Hi @{triggerBody()?['FirstName']},</p><p>We are excited to have you joining us as <strong>@{triggerBody()?['JobTitle']}</strong> on <strong>@{triggerBody()?['StartDate']}</strong>.</p><p>Here is what to expect on your first day:</p><ul><li>Your laptop and equipment will be ready at your desk</li><li>Your M365 account is active — check your email for login instructions</li><li>Your manager @{body('get_manager')?['displayName']} will meet with you for a welcome session</li><li>You have been added to the @{triggerBody()?['Department']} SharePoint site and Teams channel</li></ul><p>If you have any questions before your start date, reply to this email.</p><p>See you soon,<br/>IT & People Operations</p>"
+      }
+    },
+    {
+      "id": "notify_manager",
+      "name": "Notify Manager",
+      "type": "Office365Outlook_SendEmail",
+      "inputs": {
+        "to": "@triggerBody()?['Manager']?['Email']",
+        "subject": "Your new team member @{triggerBody()?['Title']} starts @{triggerBody()?['StartDate']}",
+        "body": "<p>Hi @{body('get_manager')?['givenName']},</p><p>This is a reminder that <strong>@{triggerBody()?['Title']}</strong> is joining your team as <strong>@{triggerBody()?['JobTitle']}</strong> on <strong>@{triggerBody()?['StartDate']}</strong>.</p><p><strong>Your onboarding checklist:</strong></p><ul><li>Schedule a 1:1 welcome meeting for their first day</li><li>Introduce them to the team in the @{triggerBody()?['Department']} Teams channel</li><li>Review their 30/60/90 day plan</li><li>Confirm their desk and workspace is ready</li></ul><p>Their M365 account and SharePoint access have been set up automatically. If additional system access is needed, please submit an IT request.</p>"
+      }
+    },
+    {
+      "id": "grant_sharepoint_access",
+      "name": "Grant SharePoint Site Access",
+      "type": "SharePoint_GrantAccess",
+      "inputs": {
+        "site": "@triggerBody()?['DepartmentSiteUrl']",
+        "userOrGroupId": "@triggerBody()?['Email']",
+        "roleId": "Contribute"
+      }
+    },
+    {
+      "id": "post_teams_message",
+      "name": "Post Welcome Message in Teams",
+      "type": "MicrosoftTeams_PostMessage",
+      "inputs": {
+        "teamId": "@triggerBody()?['DepartmentTeam']",
+        "channelId": "General",
+        "message": "Please welcome **@{triggerBody()?['Title']}** who is joining us as **@{triggerBody()?['JobTitle']}** starting @{triggerBody()?['StartDate']}! Say hi and help them get settled in."
+      }
+    },
+    {
+      "id": "create_it_ticket",
+      "name": "Create IT Provisioning Ticket",
+      "type": "SharePoint_CreateItem",
+      "inputs": {
+        "site": "https://YOUR_TENANT.sharepoint.com/sites/IT",
+        "list": "IT Tickets",
+        "item": {
+          "Title": "Hardware Setup - @{triggerBody()?['Title']}",
+          "AssignedTo": "IT Admin",
+          "Priority": "High",
+          "Status": "New",
+          "DueDate": "@triggerBody()?['StartDate']",
+          "Description": "New hire @{triggerBody()?['Title']} (@{triggerBody()?['JobTitle']}) is starting @{triggerBody()?['StartDate']}. Please provision: laptop, security badge access, and confirm M365 account is active. Department: @{triggerBody()?['Department']}."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "Standard Team Site - Governance Template",
+  "description": "Baseline governance configuration applied to all new SharePoint team sites. Enforces ownership requirements, sharing restrictions, default folder structure, and content lifecycle settings.",
+  "version": "1.0",
+  "siteSettings": {
+    "externalSharing": "Disabled",
+    "defaultSharingLinkType": "Internal",
+    "defaultLinkPermission": "View",
+    "storageQuotaGB": 25,
+    "requireSecondaryOwner": true,
+    "allowSelfServiceSiteCreation": false
+  },
+  "ownershipPolicy": {
+    "minimumOwners": 2,
+    "ownerReviewCycleDays": 180,
+    "escalationOnNoResponse": "Flag for IT review after 14 days"
+  },
+  "documentLibraries": [
+    {
+      "name": "Shared Documents",
+      "description": "General team documents",
+      "defaultFolders": ["General", "Policies and Procedures", "Templates", "Archive"],
+      "versioningEnabled": true,
+      "majorVersionLimit": 10,
+      "requireCheckout": false
+    }
+  ],
+  "permissions": {
+    "breakInheritance": false,
+    "defaultGroups": [
+      {
+        "name": "{SiteTitle} Owners",
+        "role": "Full Control",
+        "description": "Site administrators and owners"
+      },
+      {
+        "name": "{SiteTitle} Members",
+        "role": "Edit",
+        "description": "Team members with contribute access"
+      },
+      {
+        "name": "{SiteTitle} Visitors",
+        "role": "Read",
+        "description": "Read-only access for stakeholders"
+      }
+    ]
+  },
+  "lifecycle": {
+    "inactivityFlagDays": 90,
+    "renewalNotificationDays": 14,
+    "archiveAfterInactiveDays": 365,
+    "retentionPolicyLabel": "Standard Business Records - 3 Years"
+  },
+  "compliance": {
+    "sensitivityLabel": "Internal",
+    "dlpPolicyApplied": true,
+    "auditingEnabled": true
+  }
+}
