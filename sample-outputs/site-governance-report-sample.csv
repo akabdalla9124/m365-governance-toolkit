@@ -1,0 +1,7 @@
+﻿"SiteUrl","Title","PrimaryOwner","SecondaryOwner","ExternalSharing","StorageUsedGB","StorageLimitGB","LastActivityDate","DaysSinceActivity","Flags","HasIssues"
+"https://contoso.sharepoint.com/sites/finance","Finance","s.chen@contoso.com","j.miller@contoso.com","Disabled","4.2","25","2026-04-10","12","","False"
+"https://contoso.sharepoint.com/sites/operations","Operations","m.williams@contoso.com","","ExternalUserSharingOnly","18.7","25","2026-03-08","45","NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserSharingOnly","True"
+"https://contoso.sharepoint.com/sites/hr-policies","HR Policies","j.okafor@contoso.com","p.patel@contoso.com","Disabled","2.1","25","2026-04-14","8","","False"
+"https://contoso.sharepoint.com/sites/it-projects","IT Projects","p.patel@contoso.com","a.jones@contoso.com","Disabled","31.4","25","2026-03-31","22","STORAGE_OVER_25GB","True"
+"https://contoso.sharepoint.com/sites/old-marketing","Marketing Archive","","","ExternalUserAndGuestSharing","8.9","25","2025-12-01","142","NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserAndGuestSharing; INACTIVE_142_DAYS","True"
+"https://contoso.sharepoint.com/sites/legal","Legal","d.ross@contoso.com","","Disabled","11.2","25","2026-02-14","67","NO_SECONDARY_OWNER","True"

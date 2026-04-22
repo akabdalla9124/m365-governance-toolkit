@@ -1,0 +1,7 @@
+﻿"DisplayName","Owners","OwnerCount","MemberCount","LastActivityDate","DaysSinceActivity","NamingViolation","Flags","HasIssues","Action"
+"FIN-Budget Planning 2025","s.chen@contoso.com","1","8","2026-04-17","5","False","","False","Pending Review"
+"OPS-Logistics Q1","m.williams@contoso.com","1","14","2026-04-04","18","False","","False","Pending Review"
+"Random project stuff","","0","3","2025-12-31","112","True","NO_OWNER; NAMING_VIOLATION; INACTIVE_112_DAYS","True","Pending Review"
+"HR-Onboarding Templates","j.okafor@contoso.com","1","6","2026-04-13","9","False","","False","Pending Review"
+"IT Infra Team","p.patel@contoso.com","1","5","2026-03-20","33","True","NAMING_VIOLATION","True","Pending Review"
+"2022 Holiday Party","","0","0","2024-12-21","487","True","NO_OWNER; NO_MEMBERS; NAMING_VIOLATION; INACTIVE_487_DAYS","True","Pending Review"

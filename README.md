@@ -157,6 +157,37 @@ m365-governance-toolkit/
 
 ---
 
+## Try It Without M365 Credentials
+
+Clone the repo and run the demo script — no tenant, no login required:
+
+```powershell
+git clone https://github.com/akabdalla9124/m365-governance-toolkit.git
+cd m365-governance-toolkit
+powershell -ExecutionPolicy Bypass -File demo\Demo-Toolkit.ps1
+```
+
+The demo simulates a full governance audit run against a fictional Contoso tenant: user onboarding, site governance audit, access review, Teams lifecycle check, and offboarding. All five scripts run end-to-end and output real CSV reports to `sample-outputs/`.
+
+**Sample output** (from `demo\Demo-Toolkit.ps1`):
+
+```
+[FETCH] Found 6 site collections. Auditing...
+
+[OK]  Finance
+[!!]  Operations          NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserSharingOnly
+[OK]  HR Policies
+[!!]  IT Projects         STORAGE_OVER_25GB
+[!!]  Marketing Archive   NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserAndGuestSharing; INACTIVE_142_DAYS
+[!!]  Legal               NO_SECONDARY_OWNER
+
+[>>]  4 of 6 sites have governance issues.
+```
+
+Pre-generated CSVs are in `sample-outputs/` if you want to see the report format without running anything.
+
+---
+
 ## Background
 
 Built from 4+ years of hands-on M365 administration across a multi-site franchise operation. The governance gaps these scripts address — ownerless sites, stale external sharing, incomplete offboarding — are the ones that cause the most real-world compliance and security problems in mid-size M365 tenants.
