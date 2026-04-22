@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M365 Governance Toolkit — Live Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #58a6ff;
+    }
+
+    header .sub {
+      font-size: 13px;
+      color: #8b949e;
+      margin-top: 2px;
+    }
+
+    header .badge {
+      margin-left: auto;
+      background: #1f6feb33;
+      color: #58a6ff;
+      border: 1px solid #1f6feb;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #30363d;
+      padding: 0 40px;
+      background: #161b22;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #8b949e;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s;
+      user-select: none;
+    }
+
+    .tab:hover { color: #e6edf3; }
+
+    .tab.active {
+      color: #e6edf3;
+      border-bottom-color: #f78166;
+    }
+
+    .content { padding: 32px 40px; max-width: 1100px; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Terminal */
+    .terminal {
+      background: #010409;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .terminal-bar {
+      background: #161b22;
+      padding: 10px 16px;
+      font-size: 12px;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red    { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green  { background: #28c840; }
+
+    .terminal-body {
+      padding: 20px 24px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .ok     { color: #3fb950; }
+    .flag   { color: #f85149; }
+    .warn   { color: #d29922; }
+    .step   { color: #e3b341; }
+    .info   { color: #8b949e; }
+    .cyan   { color: #79c0ff; }
+    .white  { color: #e6edf3; }
+    .dim    { color: #484f58; }
+    .banner { color: #58a6ff; font-weight: bold; }
+
+    /* Tables */
+    .table-wrap {
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: auto;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #161b22;
+      color: #8b949e;
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #30363d;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #21262d;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: #161b22; }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      margin: 1px 2px;
+      white-space: nowrap;
+    }
+
+    .tag-red    { background: #f851491a; color: #f85149; border: 1px solid #f8514933; }
+    .tag-yellow { background: #d299221a; color: #d29922; border: 1px solid #d2992233; }
+    .tag-green  { background: #3fb9501a; color: #3fb950; border: 1px solid #3fb95033; }
+    .tag-blue   { background: #58a6ff1a; color: #58a6ff; border: 1px solid #58a6ff33; }
+
+    .pill-ok  { background: #3fb9501a; color: #3fb950; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+    .pill-bad { background: #f851491a; color: #f85149; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+
+    /* Summary cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .card-num {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .card-label {
+      font-size: 12px;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .num-red    { color: #f85149; }
+    .num-green  { color: #3fb950; }
+    .num-yellow { color: #d29922; }
+    .num-blue   { color: #58a6ff; }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e6edf3;
+      margin-bottom: 12px;
+      margin-top: 28px;
+    }
+
+    h2:first-child { margin-top: 0; }
+
+    p.desc {
+      color: #8b949e;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid #21262d;
+      margin: 32px 0;
+    }
+
+    code {
+      background: #161b22;
+      border: 1px solid #30363d;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #79c0ff;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>M365 Governance Toolkit</h1>
+    <div class="sub">PowerShell scripts for Microsoft 365 administration, governance, and lifecycle management</div>
+  </div>
+  <div class="badge">Demo Environment</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('overview')">Overview</div>
+  <div class="tab" onclick="show('onboarding')">User Onboarding</div>
+  <div class="tab" onclick="show('governance')">Site Governance</div>
+  <div class="tab" onclick="show('access')">Access Review</div>
+  <div class="tab" onclick="show('teams')">Teams Lifecycle</div>
+  <div class="tab" onclick="show('offboarding')">Offboarding</div>
+</div>
+
+<!-- ── OVERVIEW ─────────────────────────────────────────────────── -->
+<div class="content">
+<div class="panel active" id="panel-overview">
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-num num-blue">6</div>
+      <div class="card-label">PowerShell Scripts</div>
+    </div>
+    <div class="card">
+      <div class="card-num num-red">4</div>
+      <div class="card-label">Sites Flagged</div>
+    </div>
+    <div class="card">
+      <div class="card-num num-yellow">3</div>
+      <div class="card-label">External Users Found</div>
+    </div>
+    <div class="card">
+      <div class="card-num num-red">3</div>
+      <div class="card-label">Teams Flagged</div>
+    </div>
+  </div>
+
+  <h2>What This Toolkit Does</h2>
+  <p class="desc">A PowerShell-based admin toolkit for governing Microsoft 365 environments — SharePoint Online, Teams, OneDrive, and Exchange. Built from real operational experience managing multi-site M365 deployments.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Script</th><th>Category</th><th>What It Does</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>New-UserOnboarding.ps1</code></td><td><span class="tag tag-blue">Provisioning</span></td><td>Creates user, assigns license, adds to SharePoint and Teams</td></tr>
+        <tr><td><code>Remove-UserOffboarding.ps1</code></td><td><span class="tag tag-yellow">Lifecycle</span></td><td>Revokes access, transfers OneDrive, archives mailbox, removes licenses</td></tr>
+        <tr><td><code>Get-SiteGovernanceReport.ps1</code></td><td><span class="tag tag-red">Auditing</span></td><td>Flags sites missing owners, with external sharing, or inactive</td></tr>
+        <tr><td><code>Get-AccessReview.ps1</code></td><td><span class="tag tag-red">Auditing</span></td><td>Exports all permissions and flags external/guest users</td></tr>
+        <tr><td><code>New-SharePointSiteProvisioning.ps1</code></td><td><span class="tag tag-blue">Provisioning</span></td><td>Creates governed sites from a standard template</td></tr>
+        <tr><td><code>Set-TeamsLifecyclePolicy.ps1</code></td><td><span class="tag tag-yellow">Governance</span></td><td>Flags inactive, ownerless, or policy-violating teams</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ── ONBOARDING ───────────────────────────────────────────────── -->
+<div class="panel" id="panel-onboarding">
+  <h2>New-UserOnboarding.ps1</h2>
+  <p class="desc">Provisions a new M365 user end-to-end: account creation, license assignment, SharePoint group membership, and Teams access — in a single command.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      PowerShell — New-UserOnboarding.ps1
+    </div>
+    <div class="terminal-body"><span class="white">.\scripts\New-UserOnboarding.ps1 `
+    -FirstName "Sarah" -LastName "Chen" -Department "Finance" `
+    -Manager "j.miller@contoso.com" -LicenseSku "E3" `
+    -SharePointSiteUrl "https://contoso.sharepoint.com/sites/finance" `
+    -TeamsTeamName "FIN-Budget Planning 2025"</span>
+
+<span class="step">[1/5]</span> Connecting to Microsoft Graph, SharePoint, Teams...
+<span class="ok">[OK]  Connected.</span>
+
+<span class="step">[2/5]</span> Creating user account...
+<span class="ok">[OK]  Created: s.chen@contoso.com</span>
+<span class="info">      Display name:  Sarah Chen</span>
+<span class="info">      Department:    Finance</span>
+<span class="info">      Manager:       j.miller@contoso.com</span>
+<span class="info">      Temp password: Onboard@7823!  (must change at first login)</span>
+
+<span class="step">[3/5]</span> Assigning license: E3...
+<span class="ok">[OK]  Microsoft 365 E3 license assigned.</span>
+
+<span class="step">[4/5]</span> Adding to SharePoint site: Finance Members group...
+<span class="ok">[OK]  Added to Finance Members group.</span>
+
+<span class="step">[5/5]</span> Adding to Teams team: FIN-Budget Planning 2025...
+<span class="ok">[OK]  Added as Member.</span>
+
+<span class="ok">Onboarding complete for Sarah Chen.</span></div>
+  </div>
+</div>
+
+<!-- ── GOVERNANCE ───────────────────────────────────────────────── -->
+<div class="panel" id="panel-governance">
+  <h2>Get-SiteGovernanceReport.ps1</h2>
+  <p class="desc">Scans every SharePoint site and flags governance issues: missing secondary owner, external sharing enabled, storage over threshold, and no activity in 90+ days.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      PowerShell — Get-SiteGovernanceReport.ps1
+    </div>
+    <div class="terminal-body"><span class="step">[CONNECT]</span> Connecting to SharePoint Online tenant: contoso...
+<span class="ok">[OK]  Connected.</span>
+<span class="step">[FETCH]</span>   Found 6 site collections. Auditing...
+
+<span class="ok">[OK]  Finance</span>
+<span class="flag">[!!]  Operations           NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserSharingOnly</span>
+<span class="ok">[OK]  HR Policies</span>
+<span class="flag">[!!]  IT Projects          STORAGE_OVER_25GB</span>
+<span class="flag">[!!]  Marketing Archive    NO_SECONDARY_OWNER; EXTERNAL_SHARING:ExternalUserAndGuestSharing; INACTIVE_142_DAYS</span>
+<span class="flag">[!!]  Legal                NO_SECONDARY_OWNER</span>
+
+<span class="ok">[OK]  Report saved: sample-outputs/site-governance-report-sample.csv</span>
+<span class="warn">[>>]  4 of 6 sites have governance issues.</span></div>
+  </div>
+
+  <h2>Report Output</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Site</th><th>Primary Owner</th><th>Secondary Owner</th><th>External Sharing</th><th>Storage (GB)</th><th>Last Activity</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Finance</td><td>s.chen@contoso.com</td><td>j.miller@contoso.com</td><td>Disabled</td><td>4.2</td><td>2026-04-10</td><td><span class="pill-ok">Clean</span></td></tr>
+        <tr><td>Operations</td><td>m.williams@contoso.com</td><td><span style="color:#f85149">None</span></td><td><span class="tag tag-red">External Enabled</span></td><td>18.7</td><td>2026-03-08</td><td><span class="pill-bad">2 Issues</span></td></tr>
+        <tr><td>HR Policies</td><td>j.okafor@contoso.com</td><td>p.patel@contoso.com</td><td>Disabled</td><td>2.1</td><td>2026-04-14</td><td><span class="pill-ok">Clean</span></td></tr>
+        <tr><td>IT Projects</td><td>p.patel@contoso.com</td><td>a.jones@contoso.com</td><td>Disabled</td><td><span class="tag tag-red">31.4</span></td><td>2026-03-31</td><td><span class="pill-bad">1 Issue</span></td></tr>
+        <tr><td>Marketing Archive</td><td><span style="color:#f85149">None</span></td><td><span style="color:#f85149">None</span></td><td><span class="tag tag-red">Guest Sharing</span></td><td>8.9</td><td><span class="tag tag-red">2025-12-01</span></td><td><span class="pill-bad">3 Issues</span></td></tr>
+        <tr><td>Legal</td><td>d.ross@contoso.com</td><td><span style="color:#f85149">None</span></td><td>Disabled</td><td>11.2</td><td>2026-02-14</td><td><span class="pill-bad">1 Issue</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── ACCESS REVIEW ────────────────────────────────────────────── -->
+<div class="panel" id="panel-access">
+  <h2>Get-AccessReview.ps1</h2>
+  <p class="desc">Exports all SharePoint site permissions — users, groups, roles — to CSV for periodic compliance review. External and guest users are flagged automatically.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      PowerShell — Get-AccessReview.ps1
+    </div>
+    <div class="terminal-body"><span class="step">[CONNECT]</span> Connecting to SharePoint Online...
+<span class="ok">[OK]  Connected.</span>
+<span class="step">[SCAN]</span>    Scanning permissions across 6 sites...
+
+<span class="info">               s.chen@contoso.com                    [Full Control]  on Finance</span>
+<span class="info">               m.williams@contoso.com               [Edit]          on Finance</span>
+<span class="info">               j.miller@contoso.com                 [Edit]          on Finance</span>
+<span class="flag">[!!]  EXTERNAL  vendor_bob#EXT#@contoso.com          [Edit]          on Operations</span>
+<span class="flag">[!!]  EXTERNAL  supplier_acme#EXT#@contoso.com       [Read]          on Operations</span>
+<span class="info">               j.okafor@contoso.com                 [Full Control]  on HR Policies</span>
+<span class="info">               p.patel@contoso.com                  [Full Control]  on IT Projects</span>
+<span class="flag">[!!]  EXTERNAL  contractor_dev#EXT#@contoso.com      [Edit]          on IT Projects</span>
+<span class="info">               d.ross@contoso.com                   [Full Control]  on Legal</span>
+
+<span class="ok">[OK]  Report saved: sample-outputs/access-review-sample.csv</span>
+<span class="flag">[!!]  3 external/guest users found with active site access — flagged for review.</span></div>
+  </div>
+
+  <h2>Report Output</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Site</th><th>Group</th><th>Principal</th><th>Role</th><th>External</th><th>Review Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Finance</td><td>Finance Owners</td><td>s.chen@contoso.com</td><td>Full Control</td><td><span class="pill-ok">No</span></td><td>Pending</td></tr>
+        <tr><td>Finance</td><td>Finance Members</td><td>m.williams@contoso.com</td><td>Edit</td><td><span class="pill-ok">No</span></td><td>Pending</td></tr>
+        <tr><td>Operations</td><td>Ops Members</td><td>vendor_bob#EXT#</td><td>Edit</td><td><span class="pill-bad">YES</span></td><td>Pending</td></tr>
+        <tr><td>Operations</td><td>Ops Members</td><td>supplier_acme#EXT#</td><td>Read</td><td><span class="pill-bad">YES</span></td><td>Pending</td></tr>
+        <tr><td>IT Projects</td><td>IT Members</td><td>contractor_dev#EXT#</td><td>Edit</td><td><span class="pill-bad">YES</span></td><td>Pending</td></tr>
+        <tr><td>Legal</td><td>Legal Owners</td><td>d.ross@contoso.com</td><td>Full Control</td><td><span class="pill-ok">No</span></td><td>Pending</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── TEAMS ────────────────────────────────────────────────────── -->
+<div class="panel" id="panel-teams">
+  <h2>Set-TeamsLifecyclePolicy.ps1</h2>
+  <p class="desc">Audits all Teams for lifecycle issues: no owner, inactive for 90+ days, naming policy violations, or no members. Optionally sends renewal notification emails to team owners.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      PowerShell — Set-TeamsLifecyclePolicy.ps1
+    </div>
+    <div class="terminal-body"><span class="step">[CONNECT]</span> Connecting to Microsoft Teams...
+<span class="ok">[OK]  Connected. Found 6 teams.</span>
+
+<span class="ok">[OK]  FIN-Budget Planning 2025</span>
+<span class="ok">[OK]  OPS-Logistics Q1</span>
+<span class="flag">[!!]  Random project stuff      NO_OWNER; NAMING_VIOLATION; INACTIVE_112_DAYS</span>
+<span class="ok">[OK]  HR-Onboarding Templates</span>
+<span class="flag">[!!]  IT Infra Team             NAMING_VIOLATION</span>
+<span class="flag">[!!]  2022 Holiday Party        NO_OWNER; NO_MEMBERS; NAMING_VIOLATION; INACTIVE_487_DAYS</span>
+
+<span class="ok">[OK]  Report saved: sample-outputs/teams-lifecycle-sample.csv</span>
+<span class="warn">[>>]  3 of 6 teams flagged for review.</span></div>
+  </div>
+
+  <h2>Report Output</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Team</th><th>Owner</th><th>Members</th><th>Last Activity</th><th>Flags</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>FIN-Budget Planning 2025</td><td>s.chen@contoso.com</td><td>8</td><td>2026-04-17</td><td><span class="pill-ok">Clean</span></td></tr>
+        <tr><td>OPS-Logistics Q1</td><td>m.williams@contoso.com</td><td>14</td><td>2026-04-04</td><td><span class="pill-ok">Clean</span></td></tr>
+        <tr><td>Random project stuff</td><td><span style="color:#f85149">None</span></td><td>3</td><td>2026-01-01</td><td><span class="tag tag-red">NO_OWNER</span> <span class="tag tag-red">NAMING</span> <span class="tag tag-red">INACTIVE</span></td></tr>
+        <tr><td>HR-Onboarding Templates</td><td>j.okafor@contoso.com</td><td>6</td><td>2026-04-13</td><td><span class="pill-ok">Clean</span></td></tr>
+        <tr><td>IT Infra Team</td><td>p.patel@contoso.com</td><td>5</td><td>2026-03-20</td><td><span class="tag tag-yellow">NAMING</span></td></tr>
+        <tr><td>2022 Holiday Party</td><td><span style="color:#f85149">None</span></td><td>0</td><td>2024-10-22</td><td><span class="tag tag-red">NO_OWNER</span> <span class="tag tag-red">NO_MEMBERS</span> <span class="tag tag-red">INACTIVE_487d</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── OFFBOARDING ──────────────────────────────────────────────── -->
+<div class="panel" id="panel-offboarding">
+  <h2>Remove-UserOffboarding.ps1</h2>
+  <p class="desc">Clean, auditable offboarding in one command: revokes sessions, removes from all groups, transfers OneDrive, converts mailbox to shared, removes licenses, disables account. Every action is written to a timestamped audit log.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div>
+      PowerShell — Remove-UserOffboarding.ps1
+    </div>
+    <div class="terminal-body"><span class="white">.\scripts\Remove-UserOffboarding.ps1 `
+    -UserPrincipalName "m.williams@contoso.com" `
+    -OneDriveTransferTo "j.miller@contoso.com" `
+    -ArchiveMailbox $true</span>
+
+<span class="step">[CONNECT]</span>  Connecting to Microsoft 365 services...
+<span class="ok">[OK]  Connected.</span>
+
+<span class="step">[VALIDATE]</span> Target user: Marcus Williams (m.williams@contoso.com)
+
+<span class="step">[SESSIONS]</span> Revoking all active sign-in sessions...
+<span class="ok">[OK]  All sessions revoked. User is now signed out of all devices.</span>
+
+<span class="step">[GROUPS]</span>   Removing from Microsoft 365 groups and Teams...
+<span class="ok">[OK]  Removed from 4 groups: OPS-Logistics Q1, Operations Members, All Staff, FIN-Budget Planning 2025.</span>
+
+<span class="step">[ONEDRIVE]</span> Transferring OneDrive to j.miller@contoso.com...
+<span class="ok">[OK]  OneDrive ownership transferred: /sites/m_williams_contoso_com/</span>
+
+<span class="step">[MAILBOX]</span>  Converting mailbox to shared mailbox...
+<span class="ok">[OK]  Mailbox converted. Full access granted to j.miller@contoso.com.</span>
+
+<span class="step">[LICENSES]</span> Removing Microsoft 365 E3 license...
+<span class="ok">[OK]  1 license removed.</span>
+
+<span class="step">[DISABLE]</span>  Disabling account...
+<span class="ok">[OK]  Account disabled.</span>
+
+<span class="ok">Offboarding complete for Marcus Williams.</span>
+<span class="info">      Audit log saved to: .\logs\offboarding-2026-04-22-1738.log</span></div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+  function show(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
